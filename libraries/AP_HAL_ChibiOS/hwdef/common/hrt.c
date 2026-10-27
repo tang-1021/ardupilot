@@ -97,7 +97,8 @@ static uint64_t hrt_micros64I(void)
 }
 
 static inline bool is_locked(void) {
-    return !port_irq_enabled(port_get_irq_status());
+    syssts_t sts = port_get_lock_status();
+    return port_is_locked(sts);
 }
 
 uint64_t hrt_micros64()

@@ -1,0 +1,62 @@
+# hw definition file for processing by chibios_hwdef.py
+# for stm32h747 copy from CUAV-X7 board
+
+# MCU class and specific type
+# STM32H757xx & STM32H743xx  both work
+MCU STM32H7xx STM32H743xx
+
+define CORE_CM7
+define LDO_PWR
+define AP_CUSTOM_FIRMWARE_STRING "AUV-4.5.7"
+
+# enable DFU by default
+ENABLE_DFU_BOOT 1
+
+# crystal frequency
+OSCILLATOR_HZ 25000000
+
+# board ID for firmware load
+APJ_BOARD_ID 1010
+
+FLASH_SIZE_KB 2048
+
+# bootloader is installed at zero offset
+FLASH_RESERVE_START_KB 0
+
+# the location where the bootloader will put the firmware
+# the H743 has 128k sectors
+FLASH_BOOTLOADER_LOAD_KB 128
+
+# ChibiOS system timer
+STM32_ST_USE_TIMER 2
+
+PI5 LED_RED OUTPUT OPENDRAIN HIGH # red
+PI7 LED_ACTIVITY OUTPUT OPENDRAIN HIGH # blue
+PI6 LED_BOOTLOADER OUTPUT OPENDRAIN HIGH # green
+
+define HAL_LED_ON 0
+
+# order of UARTs (and USB)
+SERIAL_ORDER OTG1 UART7
+
+# UART7 is debug
+PF6 UART7_RX UART7 NODMA
+PE8 UART7_TX UART7 NODMA
+
+PA11 OTG_FS_DM OTG1
+PA12 OTG_FS_DP OTG1
+
+PA13 JTMS-SWDIO SWD
+PA14 JTCK-SWCLK SWD
+
+define BOOTLOADER_DEBUG SD7
+
+
+# Add CS pins to ensure they are high in bootloader
+PF2  RM3100_CS  CS
+PF10 ICM45686_1_CS CS SPEED_VERYLOW
+PI12 ICM45686_2_CS CS SPEED_VERYLOW
+PF3  ICM42688_CS CS SPEED_VERYLOW
+PF5  FRAM_CS CS SPEED_VERYLOW
+PG10 MS5611_IMU_CS CS
+PI8  MS5611_BOARD_CS CS

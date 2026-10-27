@@ -49,7 +49,7 @@ bool AP_Mount_Backend::has_pitch_control() const
 bool AP_Mount_Backend::valid_mode(MAV_MOUNT_MODE mode) const
 {
     switch (mode) {
-    case MAV_MOUNT_MODE_RETRACT...MAV_MOUNT_MODE_HOME_LOCATION:
+    case MAV_MOUNT_MODE_RETRACT...MAV_MOUNT_MODE_WPNEXT_OFFSET:
         return true;
     case MAV_MOUNT_MODE_ENUM_END:
         return false;
@@ -302,6 +302,7 @@ void AP_Mount_Backend::handle_mount_control(const mavlink_mount_control_t &packe
     case MAV_MOUNT_MODE_RC_TARGETING:
     case MAV_MOUNT_MODE_SYSID_TARGET:
     case MAV_MOUNT_MODE_HOME_LOCATION:
+    case MAV_MOUNT_MODE_WPNEXT_OFFSET:
     default:
         // no effect in these modes
         break;
@@ -320,6 +321,7 @@ MAV_RESULT AP_Mount_Backend::handle_command_do_mount_control(const mavlink_comma
     case MAV_MOUNT_MODE_NEUTRAL:
     case MAV_MOUNT_MODE_RC_TARGETING:
     case MAV_MOUNT_MODE_HOME_LOCATION:
+    case MAV_MOUNT_MODE_WPNEXT_OFFSET:
         // simply set mode
         set_mode(new_mode);
         return MAV_RESULT_ACCEPTED;
@@ -848,6 +850,7 @@ uint16_t AP_Mount_Backend::get_gimbal_device_flags() const
     case MAV_MOUNT_MODE_GPS_POINT:
     case MAV_MOUNT_MODE_SYSID_TARGET:
     case MAV_MOUNT_MODE_HOME_LOCATION:
+    case MAV_MOUNT_MODE_WPNEXT_OFFSET:
         // these modes always use earth-frame yaw (aka lock)
         yaw_lock_state = true;
         break;

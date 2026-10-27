@@ -411,6 +411,9 @@
 #define STM32_ADC_ADC3_IRQ_PRIORITY         5
 #define STM32_ADC_ADC12_CLOCK_MODE          ADC_CCR_CKMODE_ADCCK
 #define STM32_ADC_ADC3_CLOCK_MODE           ADC_CCR_CKMODE_ADCCK
+#ifndef STM32_ADC_ADC3_USE_BDMA
+#define STM32_ADC_ADC3_USE_BDMA             TRUE
+#endif
 
 // we call it ADC1 in hwdef.dat, but driver uses ADC12 for DMA stream
 #ifdef STM32_ADC_ADC1_DMA_STREAM
