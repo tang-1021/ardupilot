@@ -22,8 +22,6 @@
 
 #include "AP_ExternalAHRS_Xsens.h"
 
-#include <AP_Baro/AP_Baro.h>
-#include <AP_Compass/AP_Compass.h>
 #include <AP_HAL/AP_HAL.h>
 #include <AP_InertialSensor/AP_InertialSensor.h>
 #include <AP_SerialManager/AP_SerialManager.h>
@@ -40,10 +38,8 @@ constexpr uint8_t XSENS_MT_DATA2 = 0x36;
 constexpr uint16_t XSENS_DATA_ID_PACKET_COUNTER = 0x1020;
 constexpr uint16_t XSENS_DATA_ID_SAMPLE_TIME_FINE = 0x1060;
 constexpr uint16_t XSENS_DATA_ID_QUATERNION = 0x2010;
-constexpr uint16_t XSENS_DATA_ID_BAROMETRIC_PRESSURE = 0x3010;
 constexpr uint16_t XSENS_DATA_ID_ACCELERATION = 0x4020;
 constexpr uint16_t XSENS_DATA_ID_ANGULAR_RATE = 0x8020;
-constexpr uint16_t XSENS_DATA_ID_MAGNETIC_FIELD = 0xC020;
 constexpr uint16_t XSENS_DATA_ID_STATUS_WORD = 0xE020;
 
 }  // namespace
@@ -52,9 +48,7 @@ AP_ExternalAHRS_Xsens::AP_ExternalAHRS_Xsens(AP_ExternalAHRS *_frontend,
                                              AP_ExternalAHRS::state_t &_state) :
     AP_ExternalAHRS_backend(_frontend, _state)
 {
-    set_default_sensors(uint16_t(AP_ExternalAHRS::AvailableSensor::IMU) |
-                        uint16_t(AP_ExternalAHRS::AvailableSensor::BARO) |
-                        uint16_t(AP_ExternalAHRS::AvailableSensor::COMPASS));
+    set_default_sensors(uint16_t(AP_ExternalAHRS::AvailableSensor::IMU));
 
     auto &sm = AP::serialmanager();
     uart = sm.find_serial(AP_SerialManager::SerialProtocol_AHRS, 0);
@@ -294,28 +288,6 @@ bool AP_ExternalAHRS_Xsens::process_mtdata2(const uint8_t *payload,
                 received_gyro = true;
                 last_gyro_ms = AP_HAL::millis();
             }
-        } else if (data_id == XSENS_DATA_ID_MAGNETIC_FIELD && data_length >= 12) {
-            const float mx = read_float_be(data + 0);
-            const float my = read_float_be(data + 4);
-            const float mz = read_float_be(data + 8);
-            if (!isfinite(mx) || !isfinite(my) || !isfinite(mz)) {
-                return false;
-            }
-
-            AP_ExternalAHRS::mag_data_message_t mag;
-            mag.field = Vector3f(mx, -my, -mz) * 1.0e7f;
-            AP::compass().handle_external(mag);
-        } else if (data_id == XSENS_DATA_ID_BAROMETRIC_PRESSURE && data_length >= 4) {
-            const float pressure_pa = read_float_be(data) * 100.0f;
-            if (!isfinite(pressure_pa) || pressure_pa < 10000 || pressure_pa > 120000) {
-                return false;
-            }
-
-            AP_ExternalAHRS::baro_data_message_t baro;
-            baro.instance = 0;
-            baro.pressure_pa = pressure_pa;
-            baro.temperature = 25.0f;
-            AP::baro().handle_external(baro);
         }
 
         // Other MTData2 items are intentionally ignored.
