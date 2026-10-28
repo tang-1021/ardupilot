@@ -1969,6 +1969,12 @@ AP_AHRS::EKFType AP_AHRS::_active_EKF_type(void) const
 #endif
         }
 
+#if AP_AHRS_EXTERNAL_ENABLED
+    if (ret == EKFType::EXTERNAL && external.healthy() && filt_state.flags.attitude) {
+        return ret;
+    }
+#endif
+
         // Handle fallback for the case where the DCM or EKF is unable to provide attitude or height data.
         const bool can_use_dcm = dcm.yaw_source_available() || fly_forward;
         const bool can_use_ekf = filt_state.flags.attitude && filt_state.flags.vert_vel && filt_state.flags.vert_pos;
